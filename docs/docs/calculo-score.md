@@ -9,28 +9,28 @@ Abaixo, detalhamos o passo a passo de como a nossa arquitetura de Inteligência 
 ## O Fluxo de Cálculo (Passo a Passo)
 
 ### 1. Vetorização Semântica (O "Dito")
-Primeiro, coletamos os discursos oficiais do parlamentar na Câmara dos Deputados. Após a limpeza de ruídos, o texto não é classificado por tags rígidas. Utilizamos o modelo **SBERT** (`paraphrase-multilingual-mpnet-base-v2`) para converter o discurso num **Embedding** (um vetor matemático de 768 dimensões). 
+Primeiro, coletamos os discursos oficiais do parlamentar na Câmara dos Deputados e no Senado. Após a limpeza de ruídos protocolares, o texto não é classificado por tags rígidas. Utilizamos o modelo **SBERT** (`paraphrase-multilingual-mpnet-base-v2`) para converter o discurso num **Embedding** (um vetor matemático de 768 dimensões).
 Este processo transforma o significado e a intenção da fala em coordenadas matemáticas, preservando nuances que uma simples tag ignoraria.
 
 ### 2. Mapeamento de Votos Oficiais (O "Feito")
-Em paralelo, o nosso banco de dados mapeia os votos oficiais (Sim, Não ou Abstenção) em Projetos de Lei (PLs). A ementa de cada projeto também é convertida num vetor matemático através do mesmo modelo de embeddings, garantindo que "Dito" e "Feito" falem a mesma linguagem matemática.
+Em paralelo, o nosso banco de dados mapeia os votos nominais oficiais (Sim, Não ou Abstenção) em Projetos de Lei (PLs) e Propostas de Emenda à Constituição (PECs). Para garantir a precisão semântica e respeitar o limite de processamento da IA, utilizamos um modelo de linguagem (LLM) para gerar um **Resumo Executivo** que contenha o núcleo temático da matéria legislativa. Esse resumo é então convertido em um vetor matemático através do mesmo modelo de embeddings, garantindo que "Dito" e "Feito" falem a mesma linguagem matemática.
 
 ### 3. O Cruzamento Matemático (O *Match*)
-O motor do ContraDito utiliza a extensão **`pgvector`** no Supabase para calcular a **Similaridade de Cosseno** entre os vetores. 
+O motor do ContraDito utiliza a extensão **`pgvector`** no Supabase para calcular a **Similaridade de Cosseno** entre os vetores.
 
-* Se a similaridade é alta, significa que o discurso e a lei tratam do mesmo assunto semântico.
-* O sistema recupera esse "par ideal" e aciona o **Llama 3** para confirmar a consistência:
+* Se a similaridade atinge nosso limiar rigoroso (threshold de 0.20), significa que o discurso e a lei tratam do mesmo assunto semântico.
+* O sistema recupera esse "par ideal" e aciona o **Llama 3** (rodando localmente) para inferir a consistência:
     * **Coerência Positiva:** O discurso defende a pauta e o voto foi favorável (ou vice-versa).
-    * **Contradição (Incoerência):** O discurso aponta para um lado, mas o voto registado foi na direção oposta.
+    * **Contradição (Incoerência):** O discurso aponta para um lado, mas o voto registrado foi na direção oposta.
 
 ### 4. A Fórmula Matemática do Score
-O *Score de Coerência* é uma nota de **[0 a 10]**, calculada com base no percentual de consistência nos cruzamentos validados pela busca vetorial.
+O *Score de Coerência* é uma nota percentual de **[0 a 100]**, calculada com base no percentual de consistência nos cruzamentos validados pela busca vetorial. Registros de "Ausente" ou "Abstenção" são desconsiderados do cálculo base.
 
-*Fórmula simplificada:*
-**Score = (Total de Ações Coerentes / Total de Cruzamentos Válidos) * 10**
+*Fórmula:*
+**Score = (Quantidade de Votos Coerentes / Total de Votações Válidas Analisadas) * 100**
 
 *Exemplo Prático:*
-> Se o sistema identificou 10 cruzamentos com alta similaridade semântica, e em 8 deles o parlamentar foi coerente entre fala e voto, o seu Score será **8**.
+> Se o sistema identificou 10 cruzamentos válidos com alta similaridade semântica para um deputado, e em 8 deles o parlamentar foi coerente entre fala e voto, o seu Score final será **80**.
 
 ---
 
@@ -38,7 +38,7 @@ O *Score de Coerência* é uma nota de **[0 a 10]**, calculada com base no perce
 
 Para garantir que o Score de Coerência seja aplicado de forma justa e tecnicamente viável, o sistema adota os seguintes parâmetros:
 
-* **Mitigação - Recorte Temporal (Legislatura Vigente):** Para mitigar os efeitos de mudanças naturais de posicionamento que ocorrem ao longo de carreiras políticas extensas, o sistema limita a coleta e análise de dados ao período do mandato atual (últimos 4 anos). Essa estratégia garante que o parlamentar seja avaliado com base em sua atuação e discursos recentes, evitando que opiniões de legislaturas passadas distorçam a percepção de sua coerência no contexto político presente.
+* **Mitigação - Recorte Temporal (Legislatura Vigente):** Para mitigar os efeitos de mudanças naturais de posicionamento que ocorrem ao longo de carreiras políticas extensas, o sistema limita a coleta e análise de dados ao período do mandato atual (últimos 4 anos - legislatura de 2023 a 2026). Essa estratégia garante que o parlamentar seja avaliado com base em sua atuação e discursos recentes, evitando que opiniões de legislaturas passadas distorçam a percepção de sua coerência no contexto político presente.
 
 * **Limitação - Premissa de Validade e Complexidade Regimental:** O sistema opera sob a premissa de que todos os discursos proferidos dentro do intervalo de 4 anos são fontes válidas e representativas da postura do parlamentar. Uma limitação do projeto é a não consideração de nuances do contexto político-regimental complexo, como manobras de obstrução ou votos em "Destaques", que podem forçar um posicionamento nominal divergente da retórica por questões puramente técnicas. O motor NLP foca estritamente na relação semântica entre o discurso público e o voto registrado, sem interpretar justificativas de manobras de bastidor.
 
@@ -55,7 +55,6 @@ Para garantir que o processamento vetorial não seja prejudicado por ruídos pro
 **Trecho de destaque (Filtro de Ruído em Python):**
 
 ```python
-
 def buscar_ultimo_discurso_relevante(id_camara):
     # ... (conexão com API) ...
     for discurso in dados:
@@ -67,4 +66,3 @@ def buscar_ultimo_discurso_relevante(id_camara):
             return texto, data_hora
 
     return "Nenhum discurso relevante encontrado.", "2023-01-01"
-```

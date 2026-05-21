@@ -25,7 +25,7 @@ Mapeamos a jornada do nosso usuário no Figma para definir claramente o que entr
 * **Melhorias Futuras:** Opção para exportar o dossiê completo em formato PDF.
 
 ### 3. Comparar Políticos (Lado a Lado)
-* **MVP (Prioridade Alta):** Tela "Ringue" para comparar dois políticos, contrastando seus scores e contradições lado a lado.
+* **MVP :** Tela "Ringue" para comparar dois políticos, contrastando seus scores e contradições lado a lado.
 * **Melhorias Futuras:** Filtros de comparação avançados por temas específicos (ex: economia, meio ambiente).
 
 > **Nota visual:** O User Storymap do ContraDito construído pela equipe no Figma está no link abaixo.
