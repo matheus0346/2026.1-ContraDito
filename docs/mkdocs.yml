@@ -34,6 +34,7 @@ nav:
       - Transparência, LGPD e Dados: lgpd.md
 
   -  Requisitos e Gestão:
+      - Metodologia e Processos: metodologia.md
       - Backlog e Requisitos: requisitos.md
       - Story Map e Personas: ux/personas.md
       - Protótipos e Figma: ux/prototipos.md
