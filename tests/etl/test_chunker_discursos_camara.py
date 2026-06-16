@@ -2,6 +2,7 @@ import uuid
 import pytest
 from unittest.mock import MagicMock
 from etl.chunker_discursos_camara import dividir_em_chunks, processar_discurso, executar_pipeline_chunking
+from etl.utils import para_timestamp
 
 
 def _make_supabase_mock(discursos_data: list, ids_ja_processados: list | None = None):
@@ -19,21 +20,33 @@ def _make_supabase_mock(discursos_data: list, ids_ja_processados: list | None = 
     execute_result.data = discursos_data
 
     discursos_table = MagicMock()
-    # select().execute()                         — sem ids_processados
-    discursos_table.select.return_value.execute.return_value = execute_result
-    # select().not_.in_().execute()              — com ids_processados
-    discursos_table.select.return_value.not_.in_.return_value.execute.return_value = execute_result
-    # select().limit().execute()                 — com limite
-    discursos_table.select.return_value.limit.return_value.execute.return_value = execute_result
-    # select().not_.in_().limit().execute()      — com ambos
-    discursos_table.select.return_value.not_.in_.return_value.limit.return_value.execute.return_value = execute_result
+    # select().order().execute()                         — sem ids_processados
+    discursos_table.select.return_value.order.return_value.execute.return_value = execute_result
+    # select().order().not_.in_().execute()              — com ids_processados
+    discursos_table.select.return_value.order.return_value.not_.in_.return_value.execute.return_value = execute_result
+    # select().order().limit().execute()                 — com limite
+    discursos_table.select.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
+    # select().order().not_.in_().limit().execute()      — com ambos
+    discursos_table.select.return_value.order.return_value.not_.in_.return_value.limit.return_value.execute.return_value = execute_result
 
     supabase = MagicMock()
     supabase.table.side_effect = lambda name: (
         chunks_table if name == "camara_discurso_chunks" else discursos_table
     )
 
-    return supabase, chunks_table
+    return supabase, chunks_table, discursos_table
+
+
+def _modelo_mock():
+    modelo = MagicMock()
+    modelo.encode.return_value = [0.1] * 1024
+    return modelo
+
+
+def _qdrant_mock():
+    qdrant = MagicMock()
+    qdrant.upsert.return_value = MagicMock()
+    return qdrant
 
 
 def test_dividir_texto_vazio_retorna_lista_vazia():
@@ -73,73 +86,122 @@ def test_dividir_texto_longo_respeita_chunk_size():
         assert len(chunk) <= chunk_size
 
 
-def _modelo_mock():
-    modelo = MagicMock()
-    modelo.encode.return_value = [0.1] * 1024
-    return modelo
-
-
 def test_processar_discurso_retorna_chaves_corretas():
     """
     processar_discurso deve retornar lista de dicts com as chaves
-    id, discurso_id, texto_chunk e embedding_chunk.
+    id, discurso_id e texto_chunk (o embedding vai só para o Qdrant).
     """
     discurso_id = "abc-123"
     texto = "Sr. Presidente, apoio o projeto de educação básica."
 
     resultado = processar_discurso(
         discurso_id=discurso_id,
+        politico_id=475,
+        data_discurso="2025-07-09",
         texto_bruto=texto,
         modelo=_modelo_mock(),
+        qdrant_client=_qdrant_mock(),
         chunk_size=1000,
         chunk_overlap=200,
     )
 
     assert len(resultado) == 1
     chunk = resultado[0]
-    assert set(chunk.keys()) == {"id", "discurso_id", "texto_chunk", "embedding_chunk"}
+    assert set(chunk.keys()) == {"id", "discurso_id", "texto_chunk"}
     assert chunk["discurso_id"] == discurso_id
     assert chunk["texto_chunk"] == texto
 
 
 def test_processar_discurso_corrompido_retorna_lista_vazia():
     """
-    Discurso marcado como corrompido não deve produzir nenhum chunk nem
-    acionar o modelo de embedding.
+    Discurso marcado como corrompido não deve produzir nenhum chunk, não
+    deve acionar o modelo de embedding nem o upsert no Qdrant.
     """
     modelo = _modelo_mock()
+    qdrant = _qdrant_mock()
 
     resultado = processar_discurso(
         discurso_id="xyz-999",
+        politico_id=1,
+        data_discurso=None,
         texto_bruto="[ARQUIVO CORROMPIDO NA ORIGEM]",
         modelo=modelo,
+        qdrant_client=qdrant,
         chunk_size=1000,
         chunk_overlap=200,
     )
 
     assert resultado == []
     modelo.encode.assert_not_called()
+    qdrant.upsert.assert_not_called()
 
 
-def test_processar_discurso_ids_sao_uuids_validos():
+def test_processar_discurso_ids_sao_uuid5_deterministicos():
     """
-    Cada chunk deve ter um id único e válido no formato UUID v4.
+    Cada chunk deve ter um id único, válido em UUID v5, e reprodutível:
+    reprocessar o mesmo discurso gera os mesmos ids (idempotência).
     """
     texto = "Parágrafo sobre a reforma tributária. " * 10
-    resultado = processar_discurso(
+
+    resultado_1 = processar_discurso(
         discurso_id="def-456",
+        politico_id=1,
+        data_discurso=None,
         texto_bruto=texto,
         modelo=_modelo_mock(),
+        qdrant_client=_qdrant_mock(),
+        chunk_size=100,
+        chunk_overlap=20,
+    )
+    resultado_2 = processar_discurso(
+        discurso_id="def-456",
+        politico_id=1,
+        data_discurso=None,
+        texto_bruto=texto,
+        modelo=_modelo_mock(),
+        qdrant_client=_qdrant_mock(),
         chunk_size=100,
         chunk_overlap=20,
     )
 
-    assert len(resultado) > 1
-    ids = [chunk["id"] for chunk in resultado]
-    for chunk_id in ids:
+    assert len(resultado_1) > 1
+    ids_1 = [chunk["id"] for chunk in resultado_1]
+    ids_2 = [chunk["id"] for chunk in resultado_2]
+
+    for chunk_id in ids_1:
         parsed = uuid.UUID(chunk_id)
-        assert parsed.version == 4
-    assert len(set(ids)) == len(ids), "IDs duplicados entre chunks do mesmo discurso"
+        assert parsed.version == 5
+    assert len(set(ids_1)) == len(ids_1), "IDs duplicados entre chunks do mesmo discurso"
+    assert ids_1 == ids_2, "reprocessar o mesmo discurso deve gerar os mesmos ids"
+
+
+def test_processar_discurso_envia_payload_correto_ao_qdrant():
+    """
+    O payload upsertado no Qdrant deve conter politico_id, discurso_id e
+    data_discurso (convertida para timestamp Unix em segundos).
+    """
+    qdrant = _qdrant_mock()
+
+    processar_discurso(
+        discurso_id="94bcde33-e9bf-5d42-a3c7-a4fe374c6f3b",
+        politico_id=475,
+        data_discurso="2025-07-09",
+        texto_bruto="Sr. Presidente, apoio o projeto de educação básica.",
+        modelo=_modelo_mock(),
+        qdrant_client=qdrant,
+        chunk_size=1000,
+        chunk_overlap=200,
+    )
+
+    qdrant.upsert.assert_called_once()
+    upsert_call = qdrant.upsert.call_args
+    assert upsert_call.kwargs["collection_name"] == "chunks_discursos_embeddings"
+    ponto = upsert_call.kwargs["points"][0]
+    assert ponto.payload == {
+        "politico_id": 475,
+        "discurso_id": "94bcde33-e9bf-5d42-a3c7-a4fe374c6f3b",
+        "data_discurso": para_timestamp("2025-07-09"),
+    }
 
 
 def test_pipeline_sem_discursos_pendentes_retorna_zero():
@@ -147,11 +209,12 @@ def test_pipeline_sem_discursos_pendentes_retorna_zero():
     Quando não há discursos para processar, o pipeline retorna 0
     e não aciona nenhum insert.
     """
-    supabase, chunks_table = _make_supabase_mock(discursos_data=[])
+    supabase, chunks_table, _ = _make_supabase_mock(discursos_data=[])
 
     total = executar_pipeline_chunking(
         supabase=supabase,
         modelo=_modelo_mock(),
+        qdrant_client=_qdrant_mock(),
         chunk_size=1000,
         chunk_overlap=200,
     )
@@ -167,13 +230,14 @@ def test_pipeline_processa_discurso_valido_e_retorna_contagem():
     """
     discurso_id = "discurso-uuid-001"
     texto = "Sr. Presidente, apoio integralmente o projeto de reforma agrária."
-    supabase, chunks_table = _make_supabase_mock(
-        discursos_data=[{"id": discurso_id, "texto_bruto": texto}]
+    supabase, chunks_table, _ = _make_supabase_mock(
+        discursos_data=[{"id": discurso_id, "texto_bruto": texto, "politico_id": 1, "data_discurso": None}]
     )
 
     total = executar_pipeline_chunking(
         supabase=supabase,
         modelo=_modelo_mock(),
+        qdrant_client=_qdrant_mock(),
         chunk_size=1000,
         chunk_overlap=200,
     )
@@ -191,16 +255,35 @@ def test_pipeline_descarta_discurso_corrompido():
     Discurso com texto corrompido não deve gerar nenhum insert
     e o pipeline deve retornar 0.
     """
-    supabase, chunks_table = _make_supabase_mock(
-        discursos_data=[{"id": "uuid-corrompido", "texto_bruto": "[ARQUIVO CORROMPIDO NA ORIGEM]"}]
+    supabase, chunks_table, _ = _make_supabase_mock(
+        discursos_data=[{"id": "uuid-corrompido", "texto_bruto": "[ARQUIVO CORROMPIDO NA ORIGEM]", "politico_id": 1, "data_discurso": None}]
     )
 
     total = executar_pipeline_chunking(
         supabase=supabase,
         modelo=_modelo_mock(),
+        qdrant_client=_qdrant_mock(),
         chunk_size=1000,
         chunk_overlap=200,
     )
 
     assert total == 0
     chunks_table.insert.assert_not_called()
+
+
+def test_pipeline_ordena_discursos_do_mais_novo_para_o_mais_antigo():
+    """
+    A query de discursos pendentes deve ser ordenada por data_discurso
+    decrescente, para processar do mais novo para o mais antigo.
+    """
+    supabase, _, discursos_table = _make_supabase_mock(discursos_data=[])
+
+    executar_pipeline_chunking(
+        supabase=supabase,
+        modelo=_modelo_mock(),
+        qdrant_client=_qdrant_mock(),
+        chunk_size=1000,
+        chunk_overlap=200,
+    )
+
+    discursos_table.select.return_value.order.assert_called_once_with("data_discurso", desc=True)

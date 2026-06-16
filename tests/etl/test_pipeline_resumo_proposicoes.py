@@ -1,7 +1,7 @@
 import pytest
 import respx
 import httpx
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import MagicMock, AsyncMock
 
 from etl.pipeline_resumo_proposicoes import executar_pipeline_resumo
 
@@ -46,8 +46,9 @@ def _make_pdf(text: str = "Texto da proposicao") -> bytes:
 
 def _make_supabase_mock(proposicoes: list):
     tabela = MagicMock()
-    tabela.select.return_value.is_.return_value.not_.is_.return_value.execute.return_value.data = proposicoes
-    tabela.select.return_value.is_.return_value.not_.is_.return_value.limit.return_value.execute.return_value.data = proposicoes
+    filtro = tabela.select.return_value.is_.return_value.not_.is_.return_value.not_.is_.return_value
+    filtro.execute.return_value.data = proposicoes
+    filtro.limit.return_value.execute.return_value.data = proposicoes
     tabela.update.return_value.eq.return_value.execute.return_value = MagicMock()
 
     supabase = MagicMock()
@@ -57,24 +58,28 @@ def _make_supabase_mock(proposicoes: list):
 
 def _make_motor_nlp_mock(embedding=None):
     motor = MagicMock()
-    motor.gerar_embedding = AsyncMock(return_value=embedding or [0.1] * 768)
+    motor.gerar_embedding = AsyncMock(return_value=embedding or [0.1] * 1024)
     return motor
 
 
-def _make_groq_mock(resumo: str = "Resumo gerado."):
-    choice = MagicMock()
-    choice.message.content = resumo
+def _make_gemini_mock(resumo: str = "Resumo gerado."):
     response = MagicMock()
-    response.choices = [choice]
+    response.text = resumo
     cliente = MagicMock()
-    cliente.chat.completions.create.return_value = response
+    cliente.models.generate_content.return_value = response
     return cliente
+
+
+def _make_qdrant_mock():
+    qdrant = MagicMock()
+    qdrant.upsert.return_value = MagicMock()
+    return qdrant
 
 
 @pytest.mark.asyncio
 async def test_pipeline_sem_proposicoes_pendentes_retorna_zero():
     """
-    Tracer bullet: quando não há proposições pendentes no banco,
+    Quando não há proposições pendentes no banco,
     o pipeline retorna 0 e não aciona nenhum update.
     """
     supabase, tabela = _make_supabase_mock(proposicoes=[])
@@ -82,7 +87,8 @@ async def test_pipeline_sem_proposicoes_pendentes_retorna_zero():
     total = await executar_pipeline_resumo(
         supabase=supabase,
         motor_nlp=_make_motor_nlp_mock(),
-        groq_client=_make_groq_mock(),
+        gemini_client=_make_gemini_mock(),
+        qdrant_client=_make_qdrant_mock(),
     )
 
     assert total == 0
@@ -95,53 +101,75 @@ async def test_pipeline_processa_proposicao_e_salva_resumo_e_embedding():
     """
     Com uma proposição pendente, o pipeline deve:
     - baixar o PDF da url_texto_inteiro
-    - salvar o resumo e o embedding via update no banco
+    - salvar o resumo no Supabase (sem embedding_resumo_executivo)
+    - upsert o embedding no Qdrant
     - retornar 1
     """
     url = "https://camara.leg.br/proposicao/abc.pdf"
     pdf_bytes = _make_pdf("Proposicao sobre educacao basica")
     respx.get(url).respond(status_code=200, content=pdf_bytes)
 
-    proposicoes = [{"id": "uuid-prop-1", "url_texto_inteiro": url}]
+    proposicoes = [{
+        "id": "03b03b88-afdb-5a0a-b7ef-e4110b3c7fa2",
+        "url_texto_inteiro": url,
+        "proposicao_id": "pl_9234_2017",
+        "data_votacao": 1713916800,
+    }]
     supabase, tabela = _make_supabase_mock(proposicoes)
     motor = _make_motor_nlp_mock()
-    groq = _make_groq_mock("Esta proposicao trata de educacao.")
+    gemini = _make_gemini_mock("Esta proposicao trata de educacao.")
+    qdrant = _make_qdrant_mock()
 
     total = await executar_pipeline_resumo(
         supabase=supabase,
         motor_nlp=motor,
-        groq_client=groq,
+        gemini_client=gemini,
+        qdrant_client=qdrant,
     )
 
     assert total == 1
     tabela.update.assert_called_once()
     payload = tabela.update.call_args[0][0]
     assert payload["resumo_executivo"] == "Esta proposicao trata de educacao."
-    assert len(payload["embedding_resumo_executivo"]) == 768
-    tabela.update.return_value.eq.assert_called_once_with("id", "uuid-prop-1")
+    assert payload["erro_resumo"] is None
+    assert "embedding_resumo_executivo" not in payload
+
+    qdrant.upsert.assert_called_once()
+    upsert_call = qdrant.upsert.call_args
+    assert upsert_call.kwargs["collection_name"] == "proposicoes_embeddings"
+    point = upsert_call.kwargs["points"][0]
+    assert point.payload["proposicao_id_string"] == "pl_9234_2017"
+    assert point.payload["data_votacao"] == 1713916800
 
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_pipeline_ignora_proposicao_com_pdf_sem_texto():
+async def test_pipeline_registra_erro_quando_pdf_sem_texto():
     """
-    Uma proposição cujo PDF não contém texto extraível deve ser silenciosamente
-    ignorada — sem update no banco e sem contar no total.
+    Uma proposição cujo PDF não contém texto extraível deve registrar
+    o motivo em erro_resumo e não contar no total de sucesso.
     """
     url = "https://camara.leg.br/proposicao/escaneado.pdf"
     respx.get(url).respond(status_code=200, content=b"%PDF-1.4 arquivo vazio sem texto")
 
-    proposicoes = [{"id": "uuid-prop-2", "url_texto_inteiro": url}]
+    proposicoes = [{
+        "id": "03b03b88-afdb-5a0a-b7ef-e4110b3c7fa2",
+        "url_texto_inteiro": url,
+        "proposicao_id": "pl_0001_2020",
+        "data_votacao": None,
+    }]
     supabase, tabela = _make_supabase_mock(proposicoes)
 
     total = await executar_pipeline_resumo(
         supabase=supabase,
         motor_nlp=_make_motor_nlp_mock(),
-        groq_client=_make_groq_mock(),
+        gemini_client=_make_gemini_mock(),
+        qdrant_client=_make_qdrant_mock(),
     )
 
     assert total == 0
-    tabela.update.assert_not_called()
+    tabela.update.assert_called_once_with({"erro_resumo": "PDF sem texto extraível"})
+    tabela.update.return_value.eq.assert_called_once_with("id", "03b03b88-afdb-5a0a-b7ef-e4110b3c7fa2")
 
 
 @pytest.mark.asyncio
@@ -158,16 +186,18 @@ async def test_pipeline_continua_apos_falha_em_uma_proposicao():
     respx.get(url_ok).respond(status_code=200, content=_make_pdf("Proposicao valida"))
 
     proposicoes = [
-        {"id": "uuid-falha", "url_texto_inteiro": url_falha},
-        {"id": "uuid-ok", "url_texto_inteiro": url_ok},
+        {"id": "03b03b88-afdb-5a0a-b7ef-e4110b3c7fa2", "url_texto_inteiro": url_falha, "proposicao_id": "pl_001_2020", "data_votacao": None},
+        {"id": "03b03b88-afdb-5a0a-b7ef-e4110b3c7fa3", "url_texto_inteiro": url_ok, "proposicao_id": "pl_002_2020", "data_votacao": None},
     ]
     supabase, tabela = _make_supabase_mock(proposicoes)
 
     total = await executar_pipeline_resumo(
         supabase=supabase,
         motor_nlp=_make_motor_nlp_mock(),
-        groq_client=_make_groq_mock("Resumo da proposicao valida."),
+        gemini_client=_make_gemini_mock("Resumo da proposicao valida."),
+        qdrant_client=_make_qdrant_mock(),
     )
 
     assert total == 1
-    tabela.update.assert_called_once()
+    # update chamado duas vezes: registra erro da proposição falha + salva sucesso da ok
+    assert tabela.update.call_count == 2

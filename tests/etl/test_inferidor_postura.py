@@ -4,13 +4,11 @@ from unittest.mock import MagicMock
 from etl.inferidor_postura import inferir_postura, calcular_coerencia
 
 
-def _mock_groq(resposta_json: str):
-    choice = MagicMock()
-    choice.message.content = resposta_json
+def _mock_gemini(resposta_texto: str):
     response = MagicMock()
-    response.choices = [choice]
+    response.text = resposta_texto
     cliente = MagicMock()
-    cliente.chat.completions.create.return_value = response
+    cliente.models.generate_content.return_value = response
     return cliente
 
 
@@ -22,12 +20,12 @@ async def test_inferir_postura_favoravel():
     Tracer bullet: LLM retornando JSON válido com FAVORÁVEL deve ser
     parseado corretamente.
     """
-    groq = _mock_groq('{"postura": "FAVORÁVEL", "justificativa": "O parlamentar apoiou medidas similares."}')
+    gemini = _mock_gemini('{"postura": "FAVORÁVEL", "justificativa": "O parlamentar apoiou medidas similares."}')
 
     resultado = await inferir_postura(
         resumo_proposicao="Propõe acompanhante para mulheres em consultas.",
         chunks=["O deputado defendeu os direitos das mulheres."],
-        groq_client=groq,
+        gemini_client=gemini,
     )
 
     assert resultado["postura"] == "FAVORÁVEL"
@@ -39,12 +37,12 @@ async def test_inferir_postura_contrario():
     """
     LLM retornando CONTRÁRIO deve ser parseado corretamente.
     """
-    groq = _mock_groq('{"postura": "CONTRÁRIO", "justificativa": "Discursos indicam oposição."}')
+    gemini = _mock_gemini('{"postura": "CONTRÁRIO", "justificativa": "Discursos indicam oposição."}')
 
     resultado = await inferir_postura(
         resumo_proposicao="Propõe aumento de impostos.",
         chunks=["O deputado criticou o aumento da carga tributária."],
-        groq_client=groq,
+        gemini_client=gemini,
     )
 
     assert resultado["postura"] == "CONTRÁRIO"
@@ -56,14 +54,14 @@ async def test_inferir_postura_com_ruido_no_json():
     LLM às vezes retorna texto antes ou depois do JSON — o parser deve
     extrair o JSON mesmo assim.
     """
-    groq = _mock_groq(
+    gemini = _mock_gemini(
         'Aqui está minha análise:\n```json\n{"postura": "FAVORÁVEL", "justificativa": "Consistente."}\n```'
     )
 
     resultado = await inferir_postura(
         resumo_proposicao="Qualquer proposição.",
         chunks=["Qualquer discurso."],
-        groq_client=groq,
+        gemini_client=gemini,
     )
 
     assert resultado["postura"] == "FAVORÁVEL"
@@ -74,16 +72,16 @@ async def test_inferir_postura_sem_chunks_retorna_none():
     """
     Sem chunks disponíveis não há contexto para inferir — deve retornar None.
     """
-    groq = _mock_groq('{"postura": "FAVORÁVEL", "justificativa": "x"}')
+    gemini = _mock_gemini('{"postura": "FAVORÁVEL", "justificativa": "x"}')
 
     resultado = await inferir_postura(
         resumo_proposicao="Qualquer proposição.",
         chunks=[],
-        groq_client=groq,
+        gemini_client=gemini,
     )
 
     assert resultado is None
-    groq.chat.completions.create.assert_not_called()
+    gemini.models.generate_content.assert_not_called()
 
 
 # --- calcular_coerencia ---
