@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T05:12:46Z",
+  "generated_at": "2026-06-20T04:24:42Z",
   "repository": "unb-mds/2026.1-ContraDito",
   "issues_per_week": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "week": "2026-W25",
-      "opened": 4,
-      "closed": 2
+      "opened": 5,
+      "closed": 3
     }
   ],
   "commit_message_histogram": [
@@ -669,9 +669,9 @@
     {
       "username": "henriquemendeselias",
       "name": "henriquemendeselias",
-      "opened": 24,
-      "closed": 56,
-      "total": 80
+      "opened": 25,
+      "closed": 57,
+      "total": 82
     },
     {
       "username": "jot4-ge",
@@ -892,8 +892,8 @@
     },
     {
       "week": "2026-W25",
-      "issues_closed": 2,
-      "rolling_avg": 2.5
+      "issues_closed": 3,
+      "rolling_avg": 2.8
     }
   ],
   "individual_stats": [
@@ -904,8 +904,8 @@
       "prs_opened": 19,
       "prs_reviewed": 1,
       "prs_merged": 38,
-      "issues_opened": 24,
-      "issues_closed": 56
+      "issues_opened": 25,
+      "issues_closed": 57
     },
     {
       "username": "luizhtmoreira",
