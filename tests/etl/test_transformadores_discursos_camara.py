@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch
 
 # Importação da função que ainda será implementada (esperado falhar com ImportError)

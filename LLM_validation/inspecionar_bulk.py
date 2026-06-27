@@ -40,7 +40,7 @@ def inspecionar(label, url):
             return
 
         # Mostra primeiros 3 registros completos
-        print(f"\n  Primeiros 3 registros:")
+        print("\n  Primeiros 3 registros:")
         for i, item in enumerate(dados[:3]):
             print(f"\n  [{i+1}] {json.dumps(item, ensure_ascii=False, indent=4)}")
 

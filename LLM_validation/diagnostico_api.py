@@ -8,7 +8,6 @@ Como rodar:
 """
 
 import requests
-import json
 
 SESSION = requests.Session()
 SESSION.headers.update({"Accept": "application/json"})
@@ -23,7 +22,7 @@ def testar(nome, url, params=None):
     try:
         r = SESSION.get(url, params=params, timeout=20)
         print(f"STATUS: {r.status_code}")
-        print(f"RESPOSTA (primeiros 800 chars):")
+        print("RESPOSTA (primeiros 800 chars):")
         print(r.text[:800])
     except Exception as e:
         print(f"ERRO: {e}")

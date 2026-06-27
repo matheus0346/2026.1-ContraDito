@@ -121,7 +121,7 @@ def main():
         total = len(dados_ementa)
         acertos = sum(1 for v in dados_ementa.values() if v["acertou"])
         print(
-            f"\n  {GREEN if acertos==total else YELLOW}Acurácia: {acertos}/{total}{RESET}"
+            f"\n  {GREEN if acertos == total else YELLOW}Acurácia: {acertos}/{total}{RESET}"
         )
 
     print(f"\n{'='*120}\n")

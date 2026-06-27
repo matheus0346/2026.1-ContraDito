@@ -1,7 +1,5 @@
 import respx
 import httpx
-import pytest
-import logging
 from unittest.mock import patch, MagicMock
 from etl.extrator_politicos_camara import (
     extrair_pagina_deputados,

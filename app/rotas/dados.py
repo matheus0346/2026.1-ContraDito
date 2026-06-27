@@ -14,7 +14,6 @@ from app.modelos.schemas import (
     VotoTimelineSchema,
     ComparacaoResponse,
     AfinidadesResponse,
-    AfinidadeSchema,
     FidelidadeResponse,
     PolarizacaoResponse,
     CoesaoGeralResponse,
@@ -30,7 +29,7 @@ def validar_casa(casa: str) -> str:
     casa_clean = casa.strip().lower()
     if casa_clean not in VALID_CASES:
         raise HTTPException(
-            status_code=400, detail=f"Casa inválida. Deve ser 'camara' ou 'senado'."
+            status_code=400, detail="Casa inválida. Deve ser 'camara' ou 'senado'."
         )
     return casa_clean
 

@@ -1,6 +1,5 @@
 import respx
 import httpx
-import pytest
 from unittest.mock import patch, MagicMock
 
 # Importação da função que ainda será implementada (esperado falhar com ImportError)

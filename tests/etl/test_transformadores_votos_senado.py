@@ -1,5 +1,4 @@
 import uuid
-import pytest
 
 from etl.transformadores_votos_senado import (
     gerar_id_voto_senado,

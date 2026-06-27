@@ -1,4 +1,3 @@
-import pytest
 import httpx
 from unittest.mock import patch, MagicMock
 
@@ -27,7 +26,7 @@ def test_api_offset_e_headers(mock_get):
     data_inicio = "2023-01-01"
     data_fim = "2023-12-31"
 
-    resultado = obter_discursos_senador_api(id_senador_banco, data_inicio, data_fim)
+    obter_discursos_senador_api(id_senador_banco, data_inicio, data_fim)
 
     # Verifica a montagem correta da URL (ID da API = 150) e a presença do header
     url_esperada = "https://legis.senado.leg.br/dadosabertos/senador/150/discursos?dataInicio=2023-01-01&dataFim=2023-12-31"

@@ -1,5 +1,4 @@
 import uuid
-import pytest
 from unittest.mock import MagicMock
 from etl.chunker_discursos_camara import (
     dividir_em_chunks,
@@ -254,7 +253,7 @@ def test_processar_discurso_casting_defensivo_tipos():
 
     # 3. Verifica se politico_id None é preservado sem causar erros
     qdrant_none = _qdrant_mock()
-    resultado_none = processar_discurso(
+    processar_discurso(
         discurso_id=12345,
         politico_id=None,
         data_discurso=None,

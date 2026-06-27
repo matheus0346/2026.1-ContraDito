@@ -1,6 +1,5 @@
 import pytest
 import respx
-import httpx
 from unittest.mock import MagicMock, AsyncMock, patch
 from datetime import datetime
 from zoneinfo import ZoneInfo

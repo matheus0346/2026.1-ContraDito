@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch
 
 # Importamos a função que ainda será implementada (Fase RED)

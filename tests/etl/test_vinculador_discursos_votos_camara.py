@@ -150,7 +150,7 @@ def test_resolver_textos_combina_texto_com_score_e_ignora_itens_inexistentes():
 
 def test_buscar_embedding_proposicao_usa_filtro_camara():
     from unittest.mock import MagicMock
-    from qdrant_client.models import Filter, FieldCondition, MatchValue
+    from qdrant_client.models import Filter
 
     # Arrange
     qdrant_mock = MagicMock()

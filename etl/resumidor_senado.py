@@ -13,7 +13,7 @@ Crie um RESUMO EXECUTIVO em no máximo 400 tokens contendo:
 2. Principais obrigações criadas
 3. Argumentos centrais da justificativa
 
-Regras: 
+Regras:
 - Linguagem objetiva, sem opiniões pessoais, preservar o núcleo temático.
 - Escreva o resumo APENAS em parágrafos de texto corrido (prosa).
 - É ESTRITAMENTE PROIBIDO o uso de tópicos, marcadores (bullet points), negrito, asteriscos ou cabeçalhos com cerquilha.

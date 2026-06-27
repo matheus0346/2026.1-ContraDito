@@ -1,6 +1,5 @@
 import pytest
 import respx
-import httpx
 from unittest.mock import MagicMock, AsyncMock, patch
 
 from etl.pipeline_resumo_proposicoes import executar_pipeline_resumo

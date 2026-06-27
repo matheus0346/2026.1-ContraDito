@@ -2,13 +2,9 @@ import os
 import sys
 import logging
 import time
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-from etl.extrator_discursos_camara import (
-    executar_pipeline_completo as executar_pipeline_camara,
-)
 from etl.extrator_discursos_senado import (
     executar_pipeline_completo as executar_pipeline_senado,
 )
@@ -46,7 +42,7 @@ if __name__ == "__main__":
     logging.info(
         f"Iniciando extração histórica de discursos da Câmara ({data_inicio} a {data_fim})..."
     )
-    ##executar_pipeline_camara(supabase, data_inicio, data_fim)
+    # executar_pipeline_camara(supabase, data_inicio, data_fim)
 
     logging.info(
         f"Iniciando extração histórica de discursos do Senado ({data_inicio} a {data_fim})..."

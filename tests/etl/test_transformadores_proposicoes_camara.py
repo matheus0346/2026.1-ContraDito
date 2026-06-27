@@ -1,5 +1,4 @@
 import uuid
-import pytest
 
 # Importaremos a função do módulo de transformação que iremos implementar (GREEN)
 from etl.transformadores_proposicoes_camara import (

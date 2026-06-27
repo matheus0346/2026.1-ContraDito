@@ -1,6 +1,5 @@
 import respx
 import httpx
-import pytest
 from unittest.mock import patch, MagicMock
 from etl.extrator_politicos_senado import extrair_senadores, executar_pipeline_senadores
 
@@ -310,7 +309,7 @@ def test_orquestracao_pipeline_completo(mock_sleep):
     }
 
     # Simulando 1 falha e depois sucesso para provar que o Retry funciona!
-    route = respx.get(url).side_effect = [
+    respx.get(url).side_effect = [
         httpx.Response(500),
         httpx.Response(200, json=mock_json),
     ]

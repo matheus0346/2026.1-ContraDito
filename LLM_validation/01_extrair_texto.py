@@ -286,7 +286,7 @@ def main():
         print_status("Próximo passo: python 02_gerar_resumo.py\n", YELLOW)
     else:
         print_status(
-            f"\n⚠ Alguns arquivos falharam. Verifique os erros acima.\n", YELLOW
+            "\n⚠ Alguns arquivos falharam. Verifique os erros acima.\n", YELLOW
         )
 
 

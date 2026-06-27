@@ -453,7 +453,7 @@ def main():
     p(f"  Após RN01 temporal (90%)*:       {p3:>10,}", YELLOW)
     p(f"  Após RN02 threshold (60%)*:      {p4:>10,}", YELLOW)
     p(f"  Após <5 discursos (70%)*:        {p5:>10,}", YELLOW)
-    p(f"\n  * estimados — dependem de dados de discursos", YELLOW)
+    p("\n  * estimados — dependem de dados de discursos", YELLOW)
     p(f"\n  {'─'*48}", BOLD)
     p(f"  ESTIMATIVA ORIGINAL:             {42500:>10,}", YELLOW)
     p(f"  ESTIMATIVA REVISADA:             {p5:>10,}", GREEN)
