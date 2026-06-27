@@ -6,8 +6,12 @@
 import type { Casa } from "@/lib/casa";
 import type { Parlamentar } from "@/lib/types";
 
-// No host (next dev), a API publicada do compose responde em :8001 (fastapi 8001->8000).
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001").replace(/\/$/, "");
+// No host (next dev), a API responde em :8001. No Docker container, usa API_INTERNAL_URL (http://fastapi:8000).
+const API_BASE = (
+  process.env.API_INTERNAL_URL ?? 
+  process.env.NEXT_PUBLIC_API_URL ?? 
+  "http://localhost:8001"
+).replace(/\/$/, "");
 
 // tamanho máximo aceito pela API (Query le=100) — minimiza o nº de páginas/requisições.
 const TAMANHO = 100;

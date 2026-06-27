@@ -172,12 +172,16 @@ function DiretorioInner({ parlamentares, erro }: { parlamentares: Parlamentar[];
             <span>Parlamentar</span><span>Partido</span><span>UF</span><span>Cargo</span><span className="text-right">Casa</span>
           </div>
           {visiveis.map((p) => (
-            <div key={`${p.casa}-${p.id}`} className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_5rem_3rem_9rem_7rem] gap-4 items-center px-5 py-3 border-b border-rim/15 hover:bg-card-alt/40 transition-colors">
+            <Link
+              key={`${p.casa}-${p.id}`}
+              href={`/politico/${p.id}?casa=${p.casa}`}
+              className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_5rem_3rem_9rem_7rem] gap-4 items-center px-5 py-3 border-b border-rim/15 hover:bg-card-alt/40 transition-colors cursor-pointer group"
+            >
               <span className="flex items-center gap-3 min-w-0">
                 <span className="w-0.5 h-9 rounded-full shrink-0" style={{ background: CASA[p.casa].hex }} />
                 <Avatar name={p.nome_urna} url={p.url_foto} size={40} ringColor={tint(CASA[p.casa].hex, 45)} />
                 <span className="min-w-0">
-                  <span className="block text-sm text-bright truncate">{p.nome_urna}</span>
+                  <span className="block text-sm text-bright truncate group-hover:text-coherent transition-colors">{p.nome_urna}</span>
                   <span className="block text-[11px] text-dim truncate">{p.nome_civil}</span>
                 </span>
               </span>
@@ -185,7 +189,7 @@ function DiretorioInner({ parlamentares, erro }: { parlamentares: Parlamentar[];
               <span className="hidden sm:block font-data text-xs text-mid">{p.estado}</span>
               <span className="hidden sm:block text-xs text-dim truncate">{p.cargo}</span>
               <span className="justify-self-end"><CasaBadge casa={p.casa} /></span>
-            </div>
+            </Link>
           ))}
           {rows.length === 0 && (
             <p className="px-5 py-16 text-center text-sm text-dim">Nenhum parlamentar para os filtros selecionados.</p>

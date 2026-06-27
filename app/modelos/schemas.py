@@ -90,6 +90,15 @@ class PaginaProposicoesDB(BaseModel):
     itens: List[ProposicaoDB]
 
 
+class ProposicaoRelacaoSchema(BaseModel):
+    id: str  # UUID
+    ementa: str
+    resumo_executivo: Optional[str] = None
+    tipo: str
+    numero: int
+    ano: int
+
+
 class VotoDB(BaseModel):
     id: str  # UUID
     proposicao_id: str
@@ -97,6 +106,7 @@ class VotoDB(BaseModel):
     partido_na_epoca: Optional[str] = None
     voto_oficial: str
     chunks_proximos: Optional[List[dict]] = None
+    proposicao: Optional[ProposicaoRelacaoSchema] = None
 
 
 class PaginaVotosDB(BaseModel):
