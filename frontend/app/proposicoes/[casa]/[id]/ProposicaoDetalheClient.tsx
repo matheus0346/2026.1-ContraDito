@@ -12,9 +12,14 @@ import { formatDate } from "@/lib/utils";
 interface DetalheProps {
   proposicao: Proposicao;
   polarizacao: PolarizacaoProposicao | null;
+  voltarPath?: string;
 }
 
-export function ProposicaoDetalheClient({ proposicao: p, polarizacao: pol }: DetalheProps) {
+export function ProposicaoDetalheClient({
+  proposicao: p,
+  polarizacao: pol,
+  voltarPath,
+}: DetalheProps) {
   const { hex: hexCasa, label: labelCasa } = CASA[p.casa];
 
   // Configuração visual do badge de classificação de polarização
@@ -50,11 +55,11 @@ export function ProposicaoDetalheClient({ proposicao: p, polarizacao: pol }: Det
       <div className="border-b border-rim/15 bg-card/25 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
           <Link
-            href="/proposicoes"
+            href={voltarPath ?? "/proposicoes"}
             className="inline-flex items-center gap-2 text-sm text-mid hover:text-bright transition-colors group"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Voltar para Proposições
+            {voltarPath ? "Voltar para o Dossiê" : "Voltar para Proposições"}
           </Link>
         </div>
       </div>

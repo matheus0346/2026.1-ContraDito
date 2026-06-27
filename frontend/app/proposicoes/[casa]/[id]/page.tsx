@@ -14,9 +14,12 @@ interface PageProps {
     casa: string;
     id: string;
   }>;
+  searchParams: Promise<{
+    voltar?: string;
+  }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { casa, id } = await params;
   const casaClean: Casa = casa === "senado" ? "senado" : "camara";
   
@@ -33,13 +36,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function ProposicaoDetailPage({ params }: PageProps) {
+export default async function ProposicaoDetailPage({ params, searchParams }: PageProps) {
   const { casa, id } = await params;
+  const sp = await searchParams;
   const casaClean: Casa = casa === "senado" ? "senado" : "camara";
 
   let proposicao = null;
   let polarizacao = null;
-  let erro = false;
 
   try {
     // Busca dados básicos da proposição
@@ -62,6 +65,7 @@ export default async function ProposicaoDetailPage({ params }: PageProps) {
     <ProposicaoDetalheClient
       proposicao={proposicao}
       polarizacao={polarizacao}
+      voltarPath={sp.voltar}
     />
   );
 }
