@@ -4,7 +4,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
-import { computeTimeline, formatDate, mergeTimelines } from "@/lib/utils";
+import { computeTimeline, formatDate } from "@/lib/utils";
 import type { TimelinePoint } from "@/lib/types-legacy";
 
 interface TooltipPayload {
@@ -87,60 +87,6 @@ export function CoherenceChart({
           }}
           activeDot={{ r: 5, strokeWidth: 0 }}
         />
-      </LineChart>
-    </ResponsiveContainer>
-  );
-}
-
-export function ComparisonChart({
-  dataA, dataB, nameA, nameB,
-}: {
-  dataA: TimelinePoint[];
-  dataB: TimelinePoint[];
-  nameA: string;
-  nameB: string;
-}) {
-  const computedA = computeTimeline(dataA);
-  const computedB = computeTimeline(dataB);
-  const merged = mergeTimelines(computedA, computedB);
-
-  if (!merged.length) return null;
-
-  return (
-    <ResponsiveContainer width="100%" height={280}>
-      <LineChart data={merged} margin={{ top: 10, right: 4, bottom: 4, left: -16 }}>
-        <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
-        <XAxis
-          dataKey="date"
-          tick={{ fill: "#3d4a5c", fontSize: 10 }}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(v: string) =>
-            new Date(v + "T12:00:00").toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
-          }
-        />
-        <YAxis
-          domain={[0, 100]}
-          ticks={[0, 25, 50, 70, 100]}
-          tick={{ fill: "#3d4a5c", fontSize: 10 }}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(v: number) => `${v}%`}
-        />
-        <ReferenceLine y={70} stroke="rgba(16,185,129,0.15)" strokeDasharray="4 3" />
-        <Tooltip
-          contentStyle={{
-            background: "rgba(17,25,39,0.92)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: 8,
-            fontSize: 12,
-            color: "#8892a4",
-          }}
-          labelFormatter={(l) => typeof l === "string" ? new Date(l + "T12:00:00").toLocaleDateString("pt-BR") : String(l)}
-          formatter={(v) => [typeof v === "number" ? `${v.toFixed(1)}%` : String(v)]}
-        />
-        <Line type="monotone" dataKey="scoreA" name={nameA} stroke="#10b981" strokeWidth={1.5} dot={false} connectNulls={false} />
-        <Line type="monotone" dataKey="scoreB" name={nameB} stroke="#5e88ff" strokeWidth={1.5} dot={false} connectNulls={false} />
       </LineChart>
     </ResponsiveContainer>
   );

@@ -45,28 +45,3 @@ export function ScoreGauge({ score, size = 100 }: ScoreGaugeProps) {
     </div>
   );
 }
-
-export function ScoreBar({ score, width = 80 }: { score: number | null; width?: number }) {
-  const color = scoreHex(score);
-  const pct = score !== null ? score : 0;
-
-  return (
-    <div className="flex items-center gap-3">
-      <div
-        className="relative h-[3px] rounded-full overflow-hidden"
-        style={{ width, background: "rgba(255,255,255,0.06)" }}
-      >
-        <div
-          className="absolute inset-y-0 left-0 rounded-full"
-          style={{ width: `${pct}%`, backgroundColor: color, transition: "width 0.8s ease" }}
-        />
-      </div>
-      <span
-        className="font-data text-sm font-semibold tabular-nums"
-        style={{ color, minWidth: "3.5rem", textAlign: "right" }}
-      >
-        {score !== null ? `${formatScore(score)}%` : "N/D"}
-      </span>
-    </div>
-  );
-}

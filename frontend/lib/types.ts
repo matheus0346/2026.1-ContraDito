@@ -1,6 +1,6 @@
 // Tipos canônicos do portal de consulta (SEM score — produto não exibe coerência).
 // Parlamentar é identificado por (casa, id). Para os tipos legados com score, usados
-// só pelas páginas antigas em rework (/politico/[id], /comparacao), ver `@/lib/types-legacy`.
+// só pela página antiga em rework (/politico/[id]), ver `@/lib/types-legacy`.
 
 import type { Casa } from "@/lib/casa";
 

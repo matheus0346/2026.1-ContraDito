@@ -16,6 +16,16 @@
 
   --color-pulse: #5e88ff;
   --color-aurum: #f59e0b;
+
+  /* Comparação 1×1 — séries por parlamentar (A/B). Neutras de propósito: não são
+     pulse/aurum (identidade de Casa) nem coherent/incoherent (valor). Só distinguem A de B. */
+  --color-serie-a: #6366f1; /* índigo */
+  --color-serie-b: #14b8a6; /* teal  */
+
+  /* Votos — diferenciação categórica NEUTRA (não é julgamento: evita verde=bom/vermelho=ruim). */
+  --color-voto-sim:   #a78bfa; /* violeta   */
+  --color-voto-nao:   #22d3ee; /* ciano     */
+  --color-voto-outro: #64748b; /* ardósia: abstenção/obstrução/ausência/etc. */
 }
 
 [data-theme="light"] {
