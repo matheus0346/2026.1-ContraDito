@@ -5,7 +5,7 @@
 //   LinkedIn/e-mail opcionais — preparados, renderizados só quando preenchidos).
 
 import { useState } from "react";
-import { Github, Linkedin, Mail } from "lucide-react";
+import { Github, Linkedin, Mail, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Membro } from "@/lib/equipe";
 
 const FACES = ["Perfil", "Especialidades", "Contato"] as const;
@@ -16,7 +16,7 @@ export function MembroCard({ m }: { m: Membro }) {
 
   return (
     <div className="rounded-2xl border border-rim/40 bg-card/60 overflow-hidden flex flex-col">
-      <div className="relative h-44 overflow-hidden">
+      <div className="relative h-44 overflow-hidden group/card">
         <div className="flex h-full transition-transform duration-300 ease-out" style={{ transform: `translateX(-${face * 100}%)` }}>
           {/* Face 1 — Perfil */}
           <div className="w-full h-full shrink-0 grid place-items-center text-center px-4">
@@ -57,17 +57,33 @@ export function MembroCard({ m }: { m: Membro }) {
             </div>
           </div>
         </div>
+
+        {/* Seta Esquerda */}
+        {face > 0 && (
+          <button
+            onClick={() => setFace(face - 1)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-card/85 border border-rim/30 text-mid hover:text-bright hover:bg-card-alt flex items-center justify-center transition-all cursor-pointer z-10"
+            title="Anterior"
+          >
+            <ChevronLeft size={16} />
+          </button>
+        )}
+
+        {/* Seta Direita */}
+        {face < FACES.length - 1 && (
+          <button
+            onClick={() => setFace(face + 1)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-card/85 border border-rim/30 text-mid hover:text-bright hover:bg-card-alt flex items-center justify-center transition-all cursor-pointer z-10"
+            title="Próximo"
+          >
+            <ChevronRight size={16} />
+          </button>
+        )}
       </div>
+
       {/* controles do carrossel */}
-      <div className="flex items-center justify-between px-3 py-2 border-t border-rim/30 bg-card-alt/50">
-        <span className="text-[10px] uppercase tracking-widest text-dim">{FACES[face]}</span>
-        <div className="flex gap-1.5">
-          {FACES.map((f, i) => (
-            <button key={f} onClick={() => setFace(i)} aria-label={f}
-              className="h-1.5 rounded-full transition-all"
-              style={{ width: i === face ? 16 : 6, background: i === face ? "var(--color-coherent)" : "var(--color-rim)" }} />
-          ))}
-        </div>
+      <div className="flex items-center justify-center px-3 py-2 border-t border-rim/30 bg-card-alt/50">
+        <span className="text-[10px] uppercase tracking-widest text-dim font-bold">{FACES[face]}</span>
       </div>
     </div>
   );

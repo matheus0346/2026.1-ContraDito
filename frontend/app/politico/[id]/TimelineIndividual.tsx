@@ -5,8 +5,8 @@
 // Eixo Y = categoria de voto (Sim / Outro / Não) — posicional, não avaliativo.
 
 import {
-  LineChart,
-  Line,
+  ScatterChart,
+  Scatter,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -79,10 +79,12 @@ export function TimelineIndividual({
 
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <LineChart data={rows} margin={{ top: 15, right: 10, bottom: 5, left: -20 }}>
+      <ScatterChart data={rows} margin={{ top: 15, right: 10, bottom: 5, left: -20 }}>
         <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
         <XAxis
           dataKey="data"
+          type="category"
+          allowDuplicatedCategory={false}
           tick={{ fill: "#3d4a5c", fontSize: 10 }}
           tickLine={false}
           axisLine={false}
@@ -94,6 +96,7 @@ export function TimelineIndividual({
         />
         <YAxis
           type="number"
+          dataKey="nivel"
           domain={[0.6, 3.4]}
           ticks={[1, 2, 3]}
           tick={{ fill: "#3d4a5c", fontSize: 10 }}
@@ -102,16 +105,13 @@ export function TimelineIndividual({
           width={60}
           tickFormatter={(v: number) => NIVEL_LABEL[v] ?? ""}
         />
-        <Tooltip content={<Tip />} cursor={{ stroke: "rgba(255,255,255,0.08)" }} />
-        <Line
-          type="stepAfter"
+        <Tooltip content={<Tip />} cursor={{ stroke: "rgba(255,255,255,0.08)" }} isAnimationActive={false} />
+        <Scatter
+          name="Votos"
           dataKey="nivel"
-          stroke={color}
-          strokeWidth={0}
-          dot={{ r: 3, fill: color, stroke: color }}
-          activeDot={{ r: 4.5, fill: color, stroke: "#fff", strokeWidth: 1.5 }}
+          fill={color}
         />
-      </LineChart>
+      </ScatterChart>
     </ResponsiveContainer>
   );
 }

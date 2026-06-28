@@ -20,7 +20,7 @@ export const EQUIPE: Membro[] = [
   { nome: "Luiz Henrique Tomaz", papel: "Lead AI Engineer · Fullstack", handle: "luizhtmoreira", tags: ["Líder de IA & NLP", "Banco Vetorial (Vector DB)", "Arquitetura de Dados", "Frontend"], linkedin: "https://www.linkedin.com/in/luiz-henrique-tomaz-moreira" },
   { nome: "Matheus Rodrigues", papel: "Lead Documentação · DevOps & Testes", handle: "matheus0346", tags: ["Documentação (MkDocs)", "Docker / DevOps", "Testes Automatizados & QA", "CI/CD"], linkedin: "https://www.linkedin.com/in/matheus-pontes-566840404/" },
   { nome: "João Guilherme Amâncio", papel: "Product Owner · Fullstack", handle: "jot4-ge", tags: ["Product Owner", "Fullstack", "API", "Extração", "Frontend"], linkedin: "https://www.linkedin.com/in/joaoguiam/" },
-  { nome: "Gabriel Portácio", papel: "Frontend", handle: "G2SBiell", tags: ["Frontend"] },
+  { nome: "Gabriel Portácio", papel: "Frontend · UI/UX", handle: "G2SBiell", tags: ["Frontend", "Interface & UI/UX", "Design System", "Documentação (MkDocs)"] },
   { nome: "Lucas Araújo Lima", papel: "Lead DevOps · Testes & Documentação", handle: "lucasaraujoszz", tags: ["Docker & Conteinerização", "DevOps", "Testes Automatizados & QA", "Documentação (MkDocs)"] },
 ];
 

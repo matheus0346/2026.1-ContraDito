@@ -6,7 +6,7 @@
 // série do outro fica sem ponto naquele X. Sem score.
 
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import type { VotoTimeline } from "@/lib/comparacao";
 import { categoriaVoto, VOTO_NIVEL, NIVEL_LABEL, SERIE_A, SERIE_B } from "./votos";
@@ -80,10 +80,12 @@ export function TimelineVotos({ tl1, tl2, nomeA, nomeB }: {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={rows} margin={{ top: 10, right: 8, bottom: 4, left: -8 }}>
+      <ScatterChart data={rows} margin={{ top: 10, right: 8, bottom: 4, left: -8 }}>
         <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
         <XAxis
           dataKey="data"
+          type="category"
+          allowDuplicatedCategory={false}
           tick={{ fill: "#3d4a5c", fontSize: 10 }}
           tickLine={false}
           axisLine={false}
@@ -103,10 +105,10 @@ export function TimelineVotos({ tl1, tl2, nomeA, nomeB }: {
           width={56}
           tickFormatter={(v: number) => NIVEL_LABEL[v] ?? ""}
         />
-        <Tooltip content={<Tip nomeA={nomeA} nomeB={nomeB} />} cursor={{ stroke: "rgba(255,255,255,0.08)" }} />
-        <Line type="stepAfter" dataKey="nivelA" name={nomeA} stroke={SERIE_A} strokeWidth={0} dot={{ r: 3, fill: SERIE_A, stroke: SERIE_A }} activeDot={{ r: 4.5, fill: SERIE_A, stroke: "#fff", strokeWidth: 1.5 }} connectNulls={false} />
-        <Line type="stepAfter" dataKey="nivelB" name={nomeB} stroke={SERIE_B} strokeWidth={0} dot={{ r: 3, fill: SERIE_B, stroke: SERIE_B }} activeDot={{ r: 4.5, fill: SERIE_B, stroke: "#fff", strokeWidth: 1.5 }} connectNulls={false} />
-      </LineChart>
+        <Tooltip content={<Tip nomeA={nomeA} nomeB={nomeB} />} cursor={{ stroke: "rgba(255,255,255,0.08)" }} isAnimationActive={false} />
+        <Scatter dataKey="nivelA" name={nomeA} fill={SERIE_A} />
+        <Scatter dataKey="nivelB" name={nomeB} fill={SERIE_B} />
+      </ScatterChart>
     </ResponsiveContainer>
   );
 }

@@ -46,12 +46,12 @@ export default async function HomePage() {
             O que dizem.<br />
             <span className="text-coherent italic font-normal">Como votam.</span>
           </h1>
+          <div className="mt-20">
+            <HomeBusca />
+          </div>
           <p className="text-mid font-medium max-w-xl mx-auto mt-6 text-lg sm:text-xl leading-relaxed">
             Discursos, votações e proposições das duas casas legislativas, reunidos e abertos para você consultar.
           </p>
-          <div className="mt-8">
-            <HomeBusca />
-          </div>
         </div>
       </header>
 
