@@ -80,7 +80,7 @@ def limpar_transcricao(texto_bruto: str) -> str:
         # Padrão 4b: Clássico sem fechamento de parêntese (simplificado com re.IGNORECASE)
         re.compile(
             r"^[\.\s]*(?:O SR\.|A SRA\.)?\s*[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+)*\s*[({\[][^)}]*?(?=\s*(?:(?:excelentíssimo\s+)?(?:sr[a]?\.\s+|senhor[a]?\s+)?presidente\b|sras?\.\s+e\s+srs?\.|senhoras\s+e\s+senhores))",
-            re.IGNORECASE
+            re.IGNORECASE,
         ),
     ]
 
