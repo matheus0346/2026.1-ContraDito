@@ -6,7 +6,7 @@
 // Mostra o número real de proposições votadas para justificar o percentual.
 // Apresenta o tooltip explicativo de forma robusta e controlada por estado no React.
 
-import { Suspense, useState, useMemo, useEffect, useCallback } from "react";
+import { Suspense, useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, AlertTriangle, RefreshCw, Info, ExternalLink } from "lucide-react";
@@ -39,6 +39,7 @@ function PartidosInner({
   const [mode, setMode] = useState<Mode>(modeInicial);
   const [ordem, setOrdem] = useState<"coesao-desc" | "coesao-asc" | "nome-asc" | "nome-desc">("coesao-desc");
   const [showTooltip, setShowTooltip] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   // Conjunto de siglas com representantes ativos atualmente
   const partidosAtivos = useMemo(() => {
@@ -49,7 +50,12 @@ function PartidosInner({
   // Fecha o tooltip automaticamente ao clicar em qualquer outro lugar da janela
   useEffect(() => {
     if (!showTooltip) return;
-    const handleClose = () => setShowTooltip(false);
+    const handleClose = (e: MouseEvent) => {
+      if (tooltipRef.current && tooltipRef.current.contains(e.target as Node)) {
+        return;
+      }
+      setShowTooltip(false);
+    };
     window.addEventListener("click", handleClose);
     return () => window.removeEventListener("click", handleClose);
   }, [showTooltip]);
@@ -199,7 +205,7 @@ function PartidosInner({
                 {/* Popup do Tooltip */}
                 {showTooltip && (
                   <div 
-                    onClick={(e) => e.stopPropagation()} // Evita fechar ao clicar dentro do próprio balão
+                    ref={tooltipRef}
                     className="absolute left-0 top-full mt-2 w-[290px] sm:w-[460px] max-w-[calc(100vw-2.5rem)] p-4 rounded-xl border border-rim/35 bg-card/98 shadow-2xl z-50 text-xs text-mid leading-relaxed backdrop-blur-md flex flex-col sm:flex-row gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-1 duration-150"
                   >
                     {/* Coluna Esquerda: Explicação + Fórmula */}
