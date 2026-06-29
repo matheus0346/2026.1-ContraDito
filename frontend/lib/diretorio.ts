@@ -5,6 +5,7 @@
 
 import type { Casa } from "@/lib/casa";
 import type { Parlamentar } from "@/lib/types";
+import { normalizePartido } from "@/lib/partidos";
 
 // No host (next dev), a API responde em :8001. No Docker container, usa API_INTERNAL_URL (http://fastapi:8000).
 const API_BASE = (
@@ -54,7 +55,7 @@ export async function fetchCasaCompleta(casa: Casa): Promise<Parlamentar[]> {
       casa, // anota a casa (API não devolve)
       nome_civil: item.nome_civil,
       nome_urna: item.nome_urna,
-      partido: item.partido,
+      partido: normalizePartido(item.partido),
       cargo: item.cargo,
       estado: item.estado,
       status_mandato: item.status_mandato,

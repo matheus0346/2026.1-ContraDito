@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Search, AlertTriangle, RefreshCw, Info, ExternalLink } from "lucide-react";
 import { CASA, tint, type Casa } from "@/lib/casa";
 import type { CoesaoPartido, Parlamentar } from "@/lib/types";
+import { normalizePartido } from "@/lib/partidos";
 
 type Mode = "todos" | Casa;
 const MODES: { key: Mode; label: string }[] = [
@@ -19,6 +20,8 @@ const MODES: { key: Mode; label: string }[] = [
   { key: "camara", label: "Câmara" },
   { key: "senado", label: "Senado" },
 ];
+
+
 
 function PartidosInner({
   partidos,

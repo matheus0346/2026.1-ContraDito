@@ -11,6 +11,7 @@ import type {
   PaginaVotosNominais,
   Discurso,
 } from "./types";
+import { normalizePartido } from "./partidos";
 
 const API_BASE = (
   process.env.API_INTERNAL_URL ?? 
@@ -43,6 +44,7 @@ export async function obterPoliticoDetalhado(casa: Casa, id: number): Promise<Po
   return {
     politico: {
       ...raw.politico,
+      partido: normalizePartido(raw.politico.partido),
       casa,
     },
     resumo_votos: raw.resumo_votos,
@@ -71,13 +73,21 @@ export async function obterAfinidadesPolitico(casa: Casa, id: number): Promise<A
     gemeo: raw.gemeo
       ? {
           ...raw.gemeo,
-          politico: { ...raw.gemeo.politico, casa },
+          politico: {
+            ...raw.gemeo.politico,
+            partido: normalizePartido(raw.gemeo.politico.partido),
+            casa,
+          },
         }
       : null,
     antipoda: raw.antipoda
       ? {
           ...raw.antipoda,
-          politico: { ...raw.antipoda.politico, casa },
+          politico: {
+            ...raw.antipoda.politico,
+            partido: normalizePartido(raw.antipoda.politico.partido),
+            casa,
+          },
         }
       : null,
   };

@@ -17,6 +17,13 @@ type CoesaoGeralResponse = {
   itens: CoesaoPartidoApi[];
 };
 
+export function normalizePartido(partido: string): string {
+  if (!partido) return partido;
+  const p = partido.trim();
+  if (p.toUpperCase() === "PODE") return "PODEMOS";
+  return p;
+}
+
 async function fetchCoesaoCasa(casa: Casa): Promise<CoesaoPartido[]> {
   const url = `${API_BASE}/api/${casa}/partidos/coesao`;
   const res = await fetch(url, { next: { revalidate: 3600 } });
@@ -25,7 +32,7 @@ async function fetchCoesaoCasa(casa: Casa): Promise<CoesaoPartido[]> {
   }
   const data = (await res.json()) as CoesaoGeralResponse;
   return data.itens.map((item) => ({
-    partido: item.partido,
+    partido: normalizePartido(item.partido),
     indice_coesao: item.indice_coesao,
     total_proposicoes: item.total_proposicoes,
     casa,
