@@ -52,7 +52,7 @@ def limpar_transcricao(texto_bruto: str) -> str:
         # Padrão 5: Lixo de ofícios inseridos nos anais ou falsos cabeçalhos longos.
         # Usa lookahead ultra-específico para parar apenas nas saudações reais de abertura da fala.
         re.compile(
-            r"^[\.\s]*(?:Discurso feito|Discurso pronunciado|DISCURSO|CÂMARA DOS DEPUTADOS|A VOLTA|PRONUN?CIAMENTO).*?(?=\s*(?:(?:[Ee]xcelentíssimo\s+)?(?:[Ss]r[a]?\.\s+|[Ss]enhor[a]?\s+)?[Pp]residente\b|[Ss]ras?\.\s+e\s+[Ss]rs?\.|[Ss]enhoras\s+e\s+[Ss]enhores))",
+            r"^[\.\s]*(?:Discurso feito|Discurso pronunciado|DISCURSO|CÂMARA DOS DEPUTADOS|A VOLTA|PRONUN?CIAMENTO).*?(?=\s*(?:Sra?\.\s+|Senhora?\s+)?Presidente|Sras?\.\s+e\s+Srs\.|Senhoras\s+e\s+Senhores)",
             re.IGNORECASE,
         ),
         # Padrão 6: Fallback de ofícios e falsos cabeçalhos encabeçados quando não há saudação formal (corta no primeiro ponto final).
@@ -61,25 +61,27 @@ def limpar_transcricao(texto_bruto: str) -> str:
             re.IGNORECASE,
         ),
         # Padrão 1: Clássico com travessão
+        # Colapsado loop de palavras em uma classe de caracteres contínua
         re.compile(
-            r"^[\.\s]*(?:[OA]\s+S[Rr][Aa]?\.)?\s*[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+)*(?:\s*[({\[][^)}\]]+[)}\]])?\s*[-—]\s*"
+            r"^\.?\s*(?:[OA]\s+S[Rr][Aa]?\.\s*)?[A-Z\u00C0-\u00DC\s\.]+(?:\s*[({\[][^)}\]]+[)}\]])?\s*[-—]\s*"
         ),
         # Padrão 2: Discurso encaminhado
         re.compile(
-            r"^[\.\s]*DISCURSO NA ÍNTEGRA ENCAMINHADO PEL[OA] SRA?\. DEPUTAD[OA] [A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+)*\.\s*"
+            r"^\.?\s*DISCURSO NA ÍNTEGRA ENCAMINHADO PEL[OA] SRA?\. DEPUTAD[OA] [A-Z\u00C0-\u00DC\s\.]+\.\s*"
         ),
         # Padrão 3: Inserção nos anais
         re.compile(
-            r"^[\.\s]*.*?(?:pronuncia|pronunciou|pronunciar) o seguinte discurso:\s*",
+            r"^\.?\s*.{0,150}?(?:pronuncia|pronunciou|pronunciar) o seguinte discurso:\s*",
             re.IGNORECASE,
         ),
         # Padrão 4: Clássico sem travessão
+        # Resolvido complexidade (de 79 para 8) e removido duplicidades de acentos e escapes
         re.compile(
-            r"^[\.\s]*(?:[OA]\s+S[Rr][Aa]?\.)?\s*[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+)*\s*[({\[][^)}\]]+[)}\]]\s*"
+            r"^\.?\s*(?:[OA]\s+S[Rr][Aa]?\.\s*)?[A-Z\u00C0-\u00DC\s\.]+\s*[\(\[\{][^)\}\]]+[\)\}\]]\s*"
         ),
         # Padrão 4b: Clássico sem fechamento de parêntese (simplificado com re.IGNORECASE)
         re.compile(
-            r"^[\.\s]*(?:[OA]\s+S[Rr][Aa]?\.)?\s*[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+(?:\s+[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÇ.]+)*\s*[({\[][^)}\s]*\s*(?=(?:(?:excelentíssimo\s+|sra?\.\s+|senhora?\s+)*presidente\b|sras?\.\s+e\s+srs?\.|senhoras\s+e\s+senhores))",
+            r"^\.?\s*(?:[oa]\s+sra?\.\s*)?[A-Z\u00C0-\u00DC\s\.]+\s*[\(\[\{][^)\}\s]*\s*(?=(?:(?:excelentíssimo\s+|sra?\.\s+|senhora?\s+)*presidente\b|sras?\.\s+e\s+srs?\.|senhoras\s+e\s+senhores))",
             re.IGNORECASE,
         ),
     ]

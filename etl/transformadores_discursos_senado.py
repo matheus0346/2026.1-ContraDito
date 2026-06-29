@@ -59,10 +59,18 @@ def limpar_transcricao_senado(texto_bruto: str) -> str:
         flags=re.IGNORECASE,
     )
 
+    # Remove cabeçalho institucional se presente no início (evitando backtracking complexo na regex principal)
+    texto_limpo = re.sub(
+        r"^(?:CÂMARA DOS DEPUTADOS CN|CONGRESSO NACIONAL)[^/]*\b\d{2}/\d{2}/\d{4}\s*",
+        "",
+        texto_limpo,
+        flags=re.IGNORECASE,
+    )
+
     # Remove padrão de orador do Senado: "O SR. NOME (Partido/UF) - "
     # Suporta anomalias como ausência de parênteses, múltiplos espaços e travessões variados.
-    padrao = r"^.{0,300}?(?:O\s+SR\.?|A\s+SRA\.?|[OA]\s+PRESIDENTE)\s+[^(]*(?:\([^)]+\))?\s*[-—–]+\s+"
-    texto_limpo = re.sub(padrao, "", texto_limpo, flags=re.IGNORECASE | re.DOTALL)
+    padrao = r"^[\s\.]*(?:O\s+SR\.?|A\s+SRA\.?|[OA]\s+PRESIDENTE)\s+[^(]*(?:\([^)]+\))?\s*[-—–]+\s*"
+    texto_limpo = re.sub(padrao, "", texto_limpo, flags=re.IGNORECASE)
 
     # Converte reações da plateia/taquigrafia para o padrão de chaves e remove espaços duplos
     texto_limpo = re.sub(
