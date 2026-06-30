@@ -17,11 +17,8 @@ O ciclo de desenvolvimento do backend e da documentação do portal é automatiz
    * **Job de API (`rodar-testes`):** Configura o ambiente Python 3.12, instala dependências da API e testes (`requirements.api.txt` e `requirements.test.txt`) e roda os testes da API com pytest, exigindo cobertura mínima de **90%** (`--cov-fail-under=90`).
    * **Job de ETL (`testes-etl`):** Instala dependências do pipeline e de testes, e executa os testes do pipeline de extração e tratamento dos dados no pytest, também exigindo cobertura mínima de **90%** (`--cov-fail-under=90`).
 
-3. **Métricas de Produtividade (`metrics.yml` e `update-metrics.yml`):**
-   * Coleta dados semanais do repositório para relatórios de evolução e produtividade da equipe, atualizando a base de dados local de métricas do projeto.
-
-4. **Deploy de Documentação (`deploy-docs.yml`):**
-   * Publica de forma autônoma o site estático gerado pelo MkDocs sempre que a documentação na branch principal é atualizada.
+3. **Deploy de Documentação e Métricas (`deploy-docs.yml`):**
+   * Coleta dados do repositório diariamente para relatórios de evolução e produtividade da equipe, atualiza a base de dados local de métricas do projeto, e publica de forma autônoma o site estático gerado pelo MkDocs sempre que a documentação nas branches principais (`main` e `develop`) é atualizada ou por agendamento diário.
 
 ---
 
@@ -70,3 +67,5 @@ A execução das suítes de testes locais e no pipeline de CI/CD retornam as seg
 > pytest --cov=app tests/api
 > pytest --cov=etl --cov=utils tests/etl
 > ```
+
+
