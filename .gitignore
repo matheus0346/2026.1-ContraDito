@@ -36,3 +36,10 @@ $RECYCLE.BIN/
 
 *.log
 *.sqlite3
+
+# Cobertura de testes
+.coverage
+coverage.xml
+
+# Rascunhos/Scratch
+scratch/
