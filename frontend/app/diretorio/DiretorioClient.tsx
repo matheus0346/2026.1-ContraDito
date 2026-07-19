@@ -246,6 +246,7 @@ function DiretorioInner({ parlamentares, erro }: { parlamentares: Parlamentar[];
             <Link
               key={`${p.casa}-${p.id}`}
               href={`/politico/${p.id}?casa=${p.casa}`}
+              prefetch={false}
               className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_8rem_3rem_8rem_7rem] gap-4 items-center px-5 py-3 border-b border-rim/15 hover:bg-card-alt/40 transition-colors cursor-pointer group"
             >
               <span className="flex items-center gap-3 min-w-0">

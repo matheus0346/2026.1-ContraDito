@@ -360,6 +360,7 @@ function DiscursosInner({
                       {pol ? (
                         <Link
                           href={`/politico/${pol.id}?casa=${pol.casa}`}
+                          prefetch={false}
                           className="flex items-center gap-3 group/pol hover:opacity-90 transition-all cursor-pointer min-w-0"
                           title={`Ver dossiê de ${pol.nome_urna}`}
                         >
@@ -376,6 +377,7 @@ function DiscursosInner({
                       ) : (
                         <Link
                           href={`/politico/${item.politico_id}?casa=${casaAtiva}`}
+                          prefetch={false}
                           className="flex items-center gap-3 group/pol hover:opacity-90 transition-all cursor-pointer min-w-0"
                           title="Ver dossiê do parlamentar"
                         >
@@ -478,6 +480,7 @@ function DiscursosInner({
                   {discursoAberto.parlamentar ? (
                     <Link
                       href={`/politico/${discursoAberto.parlamentar.id}?casa=${discursoAberto.parlamentar.casa}`}
+                      prefetch={false}
                       className="flex items-center gap-3 group/drawerPol hover:opacity-90 transition-all cursor-pointer"
                       title={`Ver dossiê de ${discursoAberto.parlamentar.nome_urna}`}
                     >
@@ -492,6 +495,7 @@ function DiscursosInner({
                   ) : (
                     <Link
                       href={`/politico/${discursoAberto.politico_id}?casa=${casaAtiva}`}
+                      prefetch={false}
                       className="flex items-center gap-3 group/drawerPol hover:opacity-90 transition-all cursor-pointer"
                       title="Ver dossiê do parlamentar"
                     >
@@ -507,6 +511,7 @@ function DiscursosInner({
                   {discursoAberto.parlamentar && (
                     <Link
                       href={`/politico/${discursoAberto.politico_id}?casa=${discursoAberto.parlamentar.casa}`}
+                      prefetch={false}
                       className="px-3 h-8 inline-flex items-center gap-1.5 rounded-lg border border-rim/30 text-[11px] font-semibold text-mid hover:text-bright hover:bg-card-alt/50 transition-all shrink-0"
                     >
                       Dossiê <ExternalLink size={11} />
