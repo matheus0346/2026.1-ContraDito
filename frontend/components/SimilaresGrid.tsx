@@ -23,6 +23,7 @@ export function SimilaresGrid({ similares }: { similares: ParlamentarSimilar[] }
           <Link
             key={s.id}
             href={`/politico/${s.id}`}
+            prefetch={false}
             className="group glass rounded-xl p-4 flex items-center gap-3.5 hover:border-white/[0.14] transition-colors"
           >
             <Avatar name={s.nome_urna} url={s.url_foto} size={46} ringColor={`${scoreColor}45`} />

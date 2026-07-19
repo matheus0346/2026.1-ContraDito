@@ -168,6 +168,7 @@ export function DiretorioPreview({ parlamentares }: { parlamentares: Parlamentar
                 <Link
                   key={`${p.casa}-${p.id}`}
                   href={`/politico/${p.id}?casa=${p.casa}`}
+                  prefetch={false}
                   className="group relative rounded-xl border border-rim/40 bg-card/70 hover:bg-card-alt/90 hover:border-rim/80 p-3 sm:p-3.5 flex items-center justify-between transition-all duration-200 hover:shadow-md cursor-pointer overflow-hidden gap-3"
                 >
                   {/* Linha lateral indicadora de Casa */}

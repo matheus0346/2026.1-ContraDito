@@ -356,6 +356,7 @@ export function DossieClient({
                       {afinidades.gemeo ? (
                         <Link
                           href={`/politico/${afinidades.gemeo.politico.id}?casa=${p.casa}`}
+                          prefetch={false}
                           className="flex items-center gap-4 rounded-xl border border-rim/20 bg-card/30 p-4 hover:border-coherent/40 transition-colors"
                         >
                           <Avatar
@@ -393,6 +394,7 @@ export function DossieClient({
                       {afinidades.antipoda ? (
                         <Link
                           href={`/politico/${afinidades.antipoda.politico.id}?casa=${p.casa}`}
+                          prefetch={false}
                           className="flex items-center gap-4 rounded-xl border border-rim/20 bg-card/30 p-4 hover:border-incoherent/40 transition-colors"
                         >
                           <Avatar
