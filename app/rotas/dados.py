@@ -666,6 +666,7 @@ def comparar_politicos(
     summary="Obter Afinidades Políticas (Gêmeo e Antípoda)",
     description="Retorna o parlamentar mais parecido (gêmeo) e o mais divergente (antípoda) da mesma casa.",
 )
+@cache(expire=3600)
 def obter_afinidades_politico(
     casa: str = Path(..., description="Casa legislativa ('camara' ou 'senado')"),
     id_parlamentar: int = Path(..., description="ID interno do político"),
@@ -740,6 +741,7 @@ def obter_afinidades_politico(
     summary="Obter Fidelidade Partidária",
     description="Calcula o percentual de vezes que o parlamentar votou alinhado com a maioria do seu partido nas votações nominais.",
 )
+@cache(expire=3600)
 def obter_fidelidade_partidaria(
     casa: str = Path(..., description="Casa legislativa ('camara' ou 'senado')"),
     id_parlamentar: int = Path(..., description="ID interno do político"),
