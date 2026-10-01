@@ -27,8 +27,15 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "ContraDito — Transparência Parlamentar",
+    default: "ContraDito",
     template: "%s | ContraDito",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
   description:
     "Cruzamento de discursos e votos de parlamentares brasileiros com Inteligência Artificial.",

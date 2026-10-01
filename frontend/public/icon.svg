@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .border { fill: none; stroke: #cbd5e1; stroke-width: 2; }
+      .contra {
+        font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+        font-weight: 900;
+        font-size: 38px;
+        fill: #0d1520;
+      }
+      .dito {
+        font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+        font-weight: 500;
+        font-style: italic;
+        font-size: 34px;
+        fill: #10b981;
+      }
+    </style>
+  </defs>
+  <rect class="bg" x="2" y="2" width="60" height="60" rx="16"/>
+  <rect class="border" x="2" y="2" width="60" height="60" rx="16"/>
+  <g transform="translate(9, 46)">
+    <text class="contra" x="0" y="0">C</text>
+    <text class="dito" x="27" y="0">d</text>
+  </g>
+</svg>
